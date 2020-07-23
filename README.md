@@ -10,21 +10,6 @@
 npm install --save mx-player
 ```
 
-## Usage
-
-```tsx
-import React, { Component } from 'react'
-
-import MyComponent from 'mx-player'
-import 'mx-player/dist/index.css'
-
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
-}
-```
-
 ## License
 
 MIT © [Innei](https://github.com/Innei)
