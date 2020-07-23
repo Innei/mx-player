@@ -1,0 +1,68 @@
+.control-wrap {
+  position: fixed;
+  bottom: 10vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #0000008c;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 340px;
+  color: #ffffffbb;
+  padding: 24px;
+}
+
+.top-controls {
+  display: grid;
+  grid-template-columns: 30% auto 30%;
+}
+.top-controls > * {
+  display: flex;
+  align-items: center;
+}
+.top-controls .middle {
+  justify-content: center;
+}
+.top-controls .right {
+  justify-content: flex-end;
+}
+.top-controls .right > svg {
+  margin-left: 1em;
+}
+.bottom-progress {
+  position: relative;
+  margin-top: 16px;
+  display: flex;
+
+  align-items: center;
+}
+.bottom-progress .time:first-child {
+  margin-right: 12px;
+}
+.bottom-progress .time:last-child {
+  margin-left: 12px;
+}
+svg {
+  cursor: pointer;
+}
+
+.progress::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+
+  top: 0;
+  background-color: #fff;
+  right: var(--current);
+}
+.progress {
+  position: relative;
+  background: rgba(0, 0, 0, 0.411);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress input {
+  position: absolute;
+  top: 0;
+  left: 0;
+}

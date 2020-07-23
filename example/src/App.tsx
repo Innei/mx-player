@@ -1,5 +1,5 @@
-import { Player } from 'mx-player'
-import React, { useEffect, useRef, useState } from 'react'
+import { Player, Controls } from 'mx-player'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import 'mx-player/dist/index.css'
 const App = () => {
@@ -19,13 +19,15 @@ const App = () => {
   //   setWidth(width / 2)
   // }, [ref])
   return (
-    <Player
-      src={require('./1080_7.mp4')}
-      ref={ref as any}
-      height={height}
-      width={width}
-      muted
-    />
+    <Fragment>
+      <Player
+        src={require('./1080_7.mp4')}
+        ref={ref as any}
+        height={height}
+        width={width}
+        muted
+      />
+    </Fragment>
   )
 }
 

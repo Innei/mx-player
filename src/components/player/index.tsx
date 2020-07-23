@@ -6,8 +6,10 @@ import { External, Mute, UnMute } from '../../icons'
 import { Pause } from '../../icons/pause'
 import { Play } from '../../icons/play'
 import { classNames, fancyTimeFormat } from '../../utils'
+import { Controls } from '../controls'
 import styles from './styles.module.css'
 
+declare type VideoEvent = React.SyntheticEvent<HTMLVideoElement, Event>
 interface PlayerProps {
   maxHeight?: number
 
@@ -49,6 +51,34 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
       document.removeEventListener('keydown', handler)
     }
   }, [onClose])
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+
+  const [currentTime, setCurrentTime] = React.useState(
+    metaData.currentTime || 0,
+  )
+  const handleTimeUpdate = React.useCallback((e: VideoEvent) => {
+    const target = e.target as HTMLVideoElement
+    const current = target.currentTime
+    setCurrentTime(current)
+  }, [])
+  const [muted, setMuted] = React.useState(false)
+  const [volume, setVolume] = React.useState(50)
+  const [duration, setDuration] = React.useState(0)
+  const handleVolumeChange = React.useCallback((volume: number) => {
+    if (!videoRef.current) {
+      return
+    }
+    videoRef.current.volume = volume
+    setVolume(volume)
+  }, [])
+  const handleProgressDrag = (percent: number) => {
+    if (!videoRef.current) {
+      return
+    }
+    const currentTime = percent * videoRef.current.duration
+    videoRef.current.currentTime = currentTime
+    setCurrentTime(currentTime)
+  }
   const Player: React.FC = () => {
     return (
       <div
@@ -60,9 +90,19 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
         style={{ backgroundColor: overlayColor }}
       >
         <video
+          ref={videoRef}
           src={src}
+          muted={muted}
           controls
           style={{ maxWidth: '70vw', maxHeight: '60vh' }}
+          onTimeUpdate={handleTimeUpdate}
+          onVolumeChange={(e) => {
+            const target = e.target as HTMLVideoElement
+
+            if (target.volume !== volume) {
+              setVolume(target.volume)
+            }
+          }}
           onLoadedData={(e) => {
             const target = e.target as HTMLVideoElement
             const { currentTime, state } = metaData
@@ -70,12 +110,35 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
             if (state === PlayState.Playing && target.paused) {
               target.play()
             }
+            const volume = target.volume
+            setVolume(volume)
+            const { duration } = target
+            setDuration(duration)
           }}
         />
       </div>
     )
   }
-  return ReactDOM.createPortal(<Player />, document.body)
+  return ReactDOM.createPortal(
+    <React.Fragment>
+      <Player />
+      <Controls
+        {...{
+          currentTime: fancyTimeFormat(currentTime),
+          duration: fancyTimeFormat(duration),
+          isMuted: muted,
+          onMute: (state) => {
+            setMuted(state)
+          },
+          volume,
+          onVolumeChange: handleVolumeChange,
+          onProgressDrag: handleProgressDrag,
+          progressPercent: currentTime / duration,
+        }}
+      />
+    </React.Fragment>,
+    document.body,
+  )
 }
 export const Player: React.FC<
   PlayerProps &
@@ -99,24 +162,18 @@ export const Player: React.FC<
   const vRef = React.useRef<HTMLVideoElement>(null)
   const combinedRef = useCombinedRefs(ref, vRef)
 
-  const handlePlay = React.useCallback(
-    (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-      setPlaying(true)
-    },
-    [],
-  )
-  const handlePause = React.useCallback(
-    (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-      e.preventDefault()
+  const handlePlay = React.useCallback((e: VideoEvent) => {
+    setPlaying(true)
+  }, [])
+  const handlePause = React.useCallback((e: VideoEvent) => {
+    e.preventDefault()
 
-      const target = e.target as HTMLVideoElement
-      target.pause()
-      setPlaying(false)
-    },
-    [],
-  )
+    const target = e.target as HTMLVideoElement
+    target.pause()
+    setPlaying(false)
+  }, [])
   const handleTimeUpdate = React.useCallback(
-    throttle((e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    throttle((e: VideoEvent) => {
       try {
         const target = e.target as HTMLVideoElement
         if (target.duration - target.currentTime >= 0) {
