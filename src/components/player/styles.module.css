@@ -1,3 +1,12 @@
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hide {
+  opacity: 0;
+  visibility: hidden;
+}
 .blur-overlay {
   position: relative;
 }
@@ -20,25 +29,31 @@
     opacity: 1;
   }
 }
-.time {
+.actions {
   position: absolute;
-  left: 12px;
-  top: 12px;
   z-index: 2;
   background-color: #0000009f;
   border-radius: 6px;
   padding: 4px 8px;
   color: #ffffff;
   opacity: 0.8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
   font-size: 1rem;
 }
-.time svg {
-  margin-left: 5px;
+.actions.time {
+  left: 12px;
+  top: 12px;
+}
+
+.actions svg {
+  height: 1rem;
+  width: 1rem;
+
   cursor: pointer;
-  transform: scale(0.7);
+}
+.actions.right-btn {
+  top: 12px;
+  right: 12px;
 }
 .player-wrap {
   position: relative;
@@ -71,4 +86,13 @@
 svg {
   fill: #ffffff;
   opacity: 0.8;
+}
+
+.external-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: #0000009f;
 }
