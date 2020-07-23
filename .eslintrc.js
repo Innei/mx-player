@@ -1,7 +1,7 @@
 /*
  * @Author: Innei
  * @Date: 2020-07-22 20:04:41
- * @LastEditTime: 2020-07-22 20:55:34
+ * @LastEditTime: 2020-07-23 15:10:04
  * @LastEditors: Innei
 
  * @FilePath: /mx-player/.eslintrc.js
@@ -16,6 +16,7 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:@typescript-eslint/eslint-recommended',
   ],
+  plugins: ['react-hooks'],
   env: {
     node: true,
   },
@@ -39,5 +40,7 @@ module.exports = {
     'react/no-unused-prop-types': 0,
     'import/export': 0,
     'no-unused-vars': 'off',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
   },
 }

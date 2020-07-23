@@ -24,9 +24,14 @@ enum PlayState {
 interface ExternalPlayerProps {
   src: string
   onClose: () => void
+  metaData: { currentTime: number; state: PlayState }
+
+  overlayColor?: string
+  className?: string
 }
 const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
-  const { src, onClose } = props
+  const { src, onClose, metaData, overlayColor, className } = props
+
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (
@@ -43,14 +48,29 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
     return () => {
       document.removeEventListener('keydown', handler)
     }
-  }, [])
+  }, [onClose])
   const Player: React.FC = () => {
     return (
-      <div className={classNames(styles['external-container'], styles.flex)}>
+      <div
+        className={classNames(
+          styles['external-container'],
+          styles.flex,
+          className,
+        )}
+        style={{ backgroundColor: overlayColor }}
+      >
         <video
           src={src}
           controls
           style={{ maxWidth: '70vw', maxHeight: '60vh' }}
+          onLoadedData={(e) => {
+            const target = e.target as HTMLVideoElement
+            const { currentTime, state } = metaData
+            target.currentTime = currentTime
+            if (state === PlayState.Playing && target.paused) {
+              target.play()
+            }
+          }}
         />
       </div>
     )
@@ -70,8 +90,12 @@ export const Player: React.FC<
   const [time, setTime] = React.useState<string>('0:00')
 
   const [playing, setPlaying] = React.useState(false)
-  const [muted, setMute] = React.useState(false)
+  const [muted, setMute] = React.useState(rest.muted || false)
   const [external, setExternal] = React.useState(false)
+  const [externalMetaData, setMetaData] = React.useState({
+    state: PlayState.Pause,
+    currentTime: 0,
+  })
   const vRef = React.useRef<HTMLVideoElement>(null)
   const combinedRef = useCombinedRefs(ref, vRef)
 
@@ -85,40 +109,72 @@ export const Player: React.FC<
     (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
       e.preventDefault()
 
-      const targe = e.target as HTMLVideoElement
-      targe.pause()
+      const target = e.target as HTMLVideoElement
+      target.pause()
       setPlaying(false)
     },
     [],
   )
   const handleTimeUpdate = React.useCallback(
     throttle((e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-      const target = e.target as HTMLVideoElement
-      setTime(fancyTimeFormat(target.duration - target.currentTime))
+      try {
+        const target = e.target as HTMLVideoElement
+        if (target.duration - target.currentTime >= 0) {
+          setTime(fancyTimeFormat(target.duration - target.currentTime))
+        }
+      } catch {
+        console.log('time update error')
+      }
     }, 30),
     [],
   )
-  const closeExternalPlayer = React.useCallback(() => {
+
+  const handleCloseExternalPlayer = React.useCallback(() => {
     setExternal(false)
   }, [])
+
+  const handleMute = React.useCallback(() => {
+    setMute(!muted)
+  }, [muted])
+
+  const handlePopup = React.useCallback(() => {
+    if (!vRef.current) {
+      return
+    }
+
+    const currentTime = vRef.current.currentTime
+
+    setMetaData({
+      currentTime,
+      state: playing ? PlayState.Playing : PlayState.Pause,
+    })
+    vRef.current.pause()
+    setPlaying(false)
+    setExternal(true)
+  }, [playing])
+
+  const handlePlayPause = React.useCallback(() => {
+    if (!vRef.current) {
+      return
+    }
+    if (playing) {
+      vRef.current.pause()
+    } else {
+      vRef.current.play()
+    }
+  }, [playing])
+
   return (
     <div className={classNames(styles['player-wrap'], external && styles.hide)}>
       <div className={classNames(styles.time, styles.flex, styles.actions)}>
         <time style={{ paddingRight: '5px' }}>{time}</time>
-        <div
-          className={styles.flex}
-          onClick={() => {
-            setMute(!muted)
-          }}
-        >
+        <div className={styles.flex} onClick={handleMute}>
           {vRef.current?.muted ? <Mute /> : <UnMute />}
         </div>
       </div>
       <div
         className={classNames(styles['right-btn'], styles.flex, styles.actions)}
-        onClick={() => {
-          setExternal(true)
-        }}
+        onClick={handlePopup}
       >
         <External />
       </div>
@@ -133,16 +189,7 @@ export const Player: React.FC<
             styles['control-button'],
             playing && styles.playing,
           )}
-          onClick={() => {
-            if (!vRef.current) {
-              return
-            }
-            if (playing) {
-              vRef.current.pause()
-            } else {
-              vRef.current.play()
-            }
-          }}
+          onClick={handlePlayPause}
         >
           {playing ? <Pause /> : <Play />}
         </div>
@@ -170,7 +217,13 @@ export const Player: React.FC<
           <source src={src} />
         </video>
       </div>
-      {external && <ExternalPlayer src={src} onClose={closeExternalPlayer} />}
+      {external && (
+        <ExternalPlayer
+          src={src}
+          onClose={handleCloseExternalPlayer}
+          metaData={externalMetaData}
+        />
+      )}
     </div>
   )
 })

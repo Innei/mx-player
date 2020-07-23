@@ -24,6 +24,7 @@ const App = () => {
       ref={ref as any}
       height={height}
       width={width}
+      muted
     />
   )
 }

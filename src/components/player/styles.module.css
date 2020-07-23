@@ -43,6 +43,7 @@
 .actions.time {
   left: 12px;
   top: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .actions svg {
