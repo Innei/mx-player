@@ -5,7 +5,7 @@ import { useCombinedRefs } from '../../hooks/use-combine-ref'
 import { Close, Download, External, Mute, UnMute } from '../../icons'
 import { Pause } from '../../icons/pause'
 import { Play } from '../../icons/play'
-import { classNames, fancyTimeFormat } from '../../utils'
+import { calculateDimensions, classNames, fancyTimeFormat } from '../../utils'
 import { Controls } from '../controls'
 import styles from './styles.module.css'
 
@@ -16,6 +16,8 @@ interface PlayerProps {
   maxWidth?: number
 
   src: string
+  height?: number
+  width?: number
 }
 
 export enum PlayState {
@@ -175,14 +177,24 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
 }
 export const Player: React.FC<
   PlayerProps &
-    Partial<
+    Omit<
       React.DetailedHTMLProps<
         React.VideoHTMLAttributes<HTMLVideoElement>,
         HTMLVideoElement
-      >
+      >,
+      'height' | 'width'
     >
 > = React.forwardRef((props, ref) => {
-  const { maxHeight, maxWidth, src, ...rest } = props
+  const { height, width, maxHeight, maxWidth, src, ...rest } = props
+  const previewRect = { height, width }
+  if (maxHeight && maxWidth && height && width) {
+    const res = calculateDimensions(width, height, {
+      width: maxHeight,
+      height: maxHeight,
+    })
+    previewRect.height = res.height
+    previewRect.width = res.width
+  }
   const [time, setTime] = React.useState<string>('0:00')
 
   const [playing, setPlaying] = React.useState(false)
@@ -287,6 +299,8 @@ export const Player: React.FC<
           {...rest}
           ref={combinedRef as any}
           muted={muted}
+          height={previewRect.height}
+          width={previewRect.width}
           onPlay={handlePlay}
           onPause={handlePause}
           onDoubleClick={() => {

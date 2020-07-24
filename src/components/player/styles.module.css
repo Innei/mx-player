@@ -58,6 +58,7 @@
 }
 .player-wrap {
   position: relative;
+  display: inline-block;
 }
 .control-button {
   position: absolute;
@@ -96,6 +97,7 @@ svg {
   bottom: 0;
   top: 0;
   background-color: #0000009f;
+  z-index: 99;
 }
 
 svg.icon {

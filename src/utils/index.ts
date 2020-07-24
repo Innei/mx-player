@@ -1,7 +1,7 @@
 /*
  * @Author: Innei
  * @Date: 2020-07-22 22:05:16
- * @LastEditTime: 2020-07-22 22:11:46
+ * @LastEditTime: 2020-07-24 13:38:15
  * @LastEditors: Innei
  * @FilePath: /mx-player/src/utils/index.ts
  * @Coding with Love
@@ -45,4 +45,24 @@ export function fancyTimeFormat(duration: number) {
   ret += '' + mins + ':' + (secs < 10 ? '0' : '')
   ret += '' + secs
   return ret
+}
+
+export const calculateDimensions = (
+  width: number,
+  height: number,
+  max: { width: number; height: number },
+) => {
+  const dimensions = { width, height }
+  if (width > height) {
+    if (width > max.width) {
+      dimensions.width = max.width
+      dimensions.height = (max.width / width) * height
+    }
+  } else {
+    if (height > max.height) {
+      dimensions.height = max.height
+      dimensions.width = (max.height / height) * width
+    }
+  }
+  return dimensions
 }

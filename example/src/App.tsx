@@ -25,6 +25,8 @@ const App = () => {
         ref={ref as any}
         height={height}
         width={width}
+        maxHeight={200}
+        maxWidth={200}
         muted
       />
     </Fragment>
