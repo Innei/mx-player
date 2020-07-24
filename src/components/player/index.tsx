@@ -9,7 +9,9 @@ import {
   calculateDimensions,
   classNames,
   fancyTimeFormat,
+  getKeyValueFromStore,
   requestFullscreen,
+  setKeyValueStore,
 } from '../../utils'
 import { Controls } from '../controls'
 import styles from './styles.module.css'
@@ -29,18 +31,27 @@ export enum PlayState {
   Pause,
   Playing,
 }
-
+type MetaData = { currentTime: number; state: PlayState; volume: number }
 interface ExternalPlayerProps {
   src: string
-  onClose: () => void
-  metaData: { currentTime: number; state: PlayState }
+  onClose: (meta: MetaData) => void
+  metaData: MetaData
 
   overlayColor?: string
   className?: string
 }
 const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
   const { src, onClose, metaData, overlayColor, className } = props
-
+  const handleExit = React.useCallback(() => {
+    if (!videoRef.current) {
+      return
+    }
+    onClose({
+      currentTime: videoRef.current.currentTime,
+      volume: videoRef.current.volume,
+      state: videoRef.current.paused ? PlayState.Pause : PlayState.Playing,
+    })
+  }, [onClose])
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (
@@ -49,7 +60,7 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
         e.key === 'Escape' ||
         e.which === 27
       ) {
-        onClose()
+        handleExit()
       }
     }
     document.addEventListener('keydown', handler)
@@ -57,7 +68,7 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
     return () => {
       document.removeEventListener('keydown', handler)
     }
-  }, [onClose])
+  }, [handleExit, onClose])
   const videoRef = React.useRef<HTMLVideoElement>(null)
 
   const [currentTime, setCurrentTime] = React.useState(
@@ -69,7 +80,7 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
     setCurrentTime(current)
   }, [])
   const [muted, setMuted] = React.useState(false)
-  const [volume, setVolume] = React.useState(50)
+  const [volume, setVolume] = React.useState(metaData.volume || 0.5)
   const [duration, setDuration] = React.useState(0)
   const [buffered, setBuffered] = React.useState(0)
   const handleVolumeChange = React.useCallback((volume: number) => {
@@ -95,12 +106,17 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
   }, [])
 
   const handleProgress = React.useCallback((e) => {
-    const target = e.target as HTMLVideoElement
-    const buffered = target.buffered.end(0)
-    const duration = target.duration
-    const bufferedPercentage = (buffered / duration) * 100
-    setBuffered(bufferedPercentage)
+    try {
+      const target = e.target as HTMLVideoElement
+      const buffered = target.buffered.end(0)
+      const duration = target.duration
+      const bufferedPercentage = (buffered / duration) * 100
+      setBuffered(bufferedPercentage)
+    } catch (e) {
+      console.log(e)
+    }
   }, [])
+
   const Player = React.useMemo(() => {
     return (
       <div
@@ -127,20 +143,25 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
           onProgress={handleProgress}
           onLoadedData={(e) => {
             const target = e.target as HTMLVideoElement
-            const { currentTime, state } = metaData
+            const { currentTime, state, volume } = metaData
             target.currentTime = currentTime
             if (state === PlayState.Playing && target.paused) {
               target.play()
             }
-            const volume = target.volume
-            setVolume(volume)
+            if (volume !== 0) {
+              target.volume = volume
+            } else {
+              const volume = target.volume
+
+              setVolume(volume)
+            }
             const { duration } = target
             setDuration(duration)
           }}
         />
         <div
           className={classNames(styles.close, styles.flex)}
-          onClick={onClose}
+          onClick={handleExit}
         >
           <Close />
         </div>
@@ -148,11 +169,11 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
     )
   }, [
     className,
+    handleExit,
     handleProgress,
     handleTimeUpdate,
     metaData,
     muted,
-    onClose,
     overlayColor,
     src,
     volume,
@@ -217,9 +238,13 @@ export const Player: React.FC<
   const [playing, setPlaying] = React.useState(false)
   const [muted, setMute] = React.useState(rest.muted || false)
   const [external, setExternal] = React.useState(false)
+  const [volume, setVolume] = React.useState<number>(
+    (getKeyValueFromStore('volume') as number) || 0.5,
+  )
   const [externalMetaData, setMetaData] = React.useState({
     state: PlayState.Pause,
     currentTime: 0,
+    volume: 50,
   })
   const vRef = React.useRef<HTMLVideoElement>(null)
   const combinedRef = useCombinedRefs(ref, vRef)
@@ -248,9 +273,19 @@ export const Player: React.FC<
     [],
   )
 
-  const handleCloseExternalPlayer = React.useCallback(() => {
-    setExternal(false)
-  }, [])
+  const handleCloseExternalPlayer = React.useCallback(
+    ({ currentTime, volume, state }: MetaData) => {
+      setExternal(false)
+      setVolume(volume)
+      setKeyValueStore('volume', volume)
+      if (vRef.current) {
+        vRef.current.volume = volume
+        vRef.current.currentTime = currentTime
+        state === PlayState.Pause ? vRef.current.pause() : vRef.current.play()
+      }
+    },
+    [],
+  )
 
   const handleMute = React.useCallback(() => {
     setMute(!muted)
@@ -266,11 +301,12 @@ export const Player: React.FC<
     setMetaData({
       currentTime,
       state: playing ? PlayState.Playing : PlayState.Pause,
+      volume,
     })
     vRef.current.pause()
     setPlaying(false)
     setExternal(true)
-  }, [playing])
+  }, [playing, volume])
 
   const handlePlayPause = React.useCallback(() => {
     if (!vRef.current) {
@@ -303,7 +339,14 @@ export const Player: React.FC<
           'inner-video',
         )}
       >
-        <div className={styles.overlay} onClick={handlePlayPause}>
+        <div
+          className={styles.overlay}
+          onClick={handlePlayPause}
+          onContextMenu={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+        >
           <div
             className={classNames(
               styles['control-button'],
@@ -329,10 +372,10 @@ export const Player: React.FC<
           }}
           onTimeUpdate={handleTimeUpdate}
           onLoadedData={(e) => {
-            // vRef.current?.play()
-            // console.log(e.target)
-            const { duration } = e.target as HTMLVideoElement
+            const target = e.target as HTMLVideoElement
+            const duration = target.duration
             const time = fancyTimeFormat(duration)
+            target.volume = volume
             setTime(time)
           }}
         >

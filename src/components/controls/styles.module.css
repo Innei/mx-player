@@ -8,9 +8,15 @@
   overflow: hidden;
   width: 340px;
   color: #ffffffbb;
-  padding: 12px;
+  padding: 12px 16px;
   font-size: 14px;
   z-index: 100;
+  opacity: 1;
+  transition: opacity 0.5s;
+  backdrop-filter: blur(20px);
+}
+.control-wrap.inactive {
+  opacity: 0.5;
 }
 
 .top-controls {
@@ -20,6 +26,12 @@
 .top-controls > * {
   display: flex;
   align-items: center;
+}
+.top-controls > * {
+  overflow: hidden;
+}
+.top-controls .left svg {
+  margin-right: 0.5ch;
 }
 .top-controls .middle {
   justify-content: center;
@@ -55,26 +67,40 @@ svg {
   position: absolute;
   left: 0;
   bottom: 0;
-
+  border-radius: 4px;
   top: 0;
   background-color: #fff;
   right: var(--current);
 }
+/* .progress::after {
+  content: '';
+  right: var(--current);
+  top: 0;
+  position: absolute;
+  bottom: 0;
+  transform: translate(5%, -25%);
+  background-color: #fff;
+  border: 1px solid #666;
+  border-radius: 50%;
+  height: 12px;
+  width: 12px;
+  z-index: 2;
+} */
 .progress {
   position: relative;
   background: rgba(0, 0, 0, 0.411);
   border-radius: 4px;
-  overflow: hidden;
 }
 .progress input {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 5;
 }
 .progress-wrap {
   position: relative;
   border-radius: 4px;
-  overflow: hidden;
+
   width: 100%;
 }
 .seek-progress {

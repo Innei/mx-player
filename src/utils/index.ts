@@ -89,3 +89,16 @@ export function requestFullscreen<T extends HTMLElement>(element: T) {
     element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT)
   }
 }
+export const storePrefix = 'MX_PLAYER_'
+export const setKeyValueStore = (key: string, value: any) => {
+  localStorage.setItem(
+    storePrefix.concat(key.toUpperCase()),
+    JSON.stringify(value),
+  )
+}
+
+export const getKeyValueFromStore = (key: string): unknown => {
+  return JSON.parse(
+    localStorage.getItem(storePrefix.concat(key.toUpperCase())) || 'null',
+  )
+}

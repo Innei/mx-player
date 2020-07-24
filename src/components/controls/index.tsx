@@ -1,16 +1,16 @@
 /*
  * @Author: Innei
  * @Date: 2020-07-23 14:40:05
- * @LastEditTime: 2020-07-24 19:28:07
+ * @LastEditTime: 2020-07-24 19:40:52
  * @LastEditors: Innei
  * @FilePath: /mx-player/src/components/controls/index.tsx
  * @Coding with Love
  */
 
-import React, { FC, memo, useEffect, useState } from 'react'
+import React, { FC, memo, useCallback, useEffect, useState } from 'react'
 import { PlayState } from '../..'
 import { Expand, Mute, Pause, Play, Volume } from '../../icons'
-import { fancyTimeFormat } from '../../utils'
+import { classNames, fancyTimeFormat } from '../../utils'
 import styles from './styles.module.css'
 
 interface ProgressProps {
@@ -101,9 +101,41 @@ export const Controls: FC<ControlsProps> = memo((props) => {
     buffered,
     actions,
   } = props
-
+  const [inactive, setInactive] = useState(false)
+  const [timer, setTimer] = useState<NodeJS.Timeout>(null!)
+  useEffect(() => {
+    setTimer(
+      setTimeout(() => {
+        try {
+          setInactive(true)
+        } catch {}
+      }, 2000),
+    )
+  }, [])
+  const handleMouseIn = useCallback(() => {
+    clearTimeout(timer)
+    setInactive(false)
+  }, [timer])
+  const handleMouseOut = useCallback(
+    () =>
+      setTimer(
+        setTimeout(() => {
+          try {
+            setInactive(true)
+          } catch {}
+        }, 2000),
+      ),
+    [],
+  )
   return (
-    <div className={styles['control-wrap']}>
+    <div
+      className={classNames(
+        styles['control-wrap'],
+        inactive && styles.inactive,
+      )}
+      onMouseOver={handleMouseIn}
+      onMouseLeave={handleMouseOut}
+    >
       <div className={styles['top-controls']}>
         <div className={styles.left}>
           <div
@@ -128,13 +160,14 @@ export const Controls: FC<ControlsProps> = memo((props) => {
             style={{ marginLeft: '4px' }}
           />
         </div>
-        <div
-          className={styles.middle}
-          onClick={() => {
-            onPlayPause(isPlay ? PlayState.Playing : PlayState.Pause)
-          }}
-        >
-          {isPlay ? <Pause /> : <Play />}
+        <div className={styles.middle}>
+          <span
+            onClick={() => {
+              onPlayPause(isPlay ? PlayState.Playing : PlayState.Pause)
+            }}
+          >
+            {isPlay ? <Pause /> : <Play />}
+          </span>
         </div>
         <div className={styles.right}>
           {onRequestFullScreen && (
@@ -158,7 +191,7 @@ export const Controls: FC<ControlsProps> = memo((props) => {
             onChange={onProgressDrag}
             percent={progressPercent}
           />
-          {buffered && (
+          {!!buffered && (
             <div
               className={styles['seek-progress']}
               style={
