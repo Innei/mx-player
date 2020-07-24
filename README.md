@@ -14,7 +14,7 @@ yarn add mx-player
 
 ## Demo
 
-TODO
+[Live Demo](https://innei.github.io/mx-player)
 
 ## Usage
 
