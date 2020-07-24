@@ -19,6 +19,7 @@ TODO
 ## Usage
 
 ```tsx
+import 'mx-player/dist/index.css'
 import { Player } from 'mx-player'
 
 const App = () => {
