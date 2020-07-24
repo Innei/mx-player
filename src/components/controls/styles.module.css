@@ -71,3 +71,19 @@ svg {
   top: 0;
   left: 0;
 }
+.progress-wrap {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+.seek-progress {
+  position: absolute;
+  z-index: 1;
+  background: #c5c0c040;
+  left: 0;
+  right: var(--seekable);
+  bottom: 0;
+  top: 0;
+  transition: right 0.5s ease-in-out;
+}

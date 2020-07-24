@@ -71,6 +71,7 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
   const [muted, setMuted] = React.useState(false)
   const [volume, setVolume] = React.useState(50)
   const [duration, setDuration] = React.useState(0)
+  const [buffered, setBuffered] = React.useState(0)
   const handleVolumeChange = React.useCallback((volume: number) => {
     if (!videoRef.current) {
       return
@@ -91,6 +92,14 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
       return
     }
     videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause()
+  }, [])
+
+  const handleProgress = React.useCallback((e) => {
+    const target = e.target as HTMLVideoElement
+    const buffered = target.buffered.end(0)
+    const duration = target.duration
+    const bufferedPercentage = (buffered / duration) * 100
+    setBuffered(bufferedPercentage)
   }, [])
   const Player = React.useMemo(() => {
     return (
@@ -115,6 +124,7 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
               setVolume(target.volume)
             }
           }}
+          onProgress={handleProgress}
           onLoadedData={(e) => {
             const target = e.target as HTMLVideoElement
             const { currentTime, state } = metaData
@@ -138,6 +148,7 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
     )
   }, [
     className,
+    handleProgress,
     handleTimeUpdate,
     metaData,
     muted,
@@ -152,8 +163,8 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
       {Player}
       <Controls
         {...{
-          currentTime: fancyTimeFormat(currentTime),
-          duration: fancyTimeFormat(duration),
+          currentTime,
+          duration,
           isMuted: muted,
           onMute: (state) => {
             setMuted(state)
@@ -174,6 +185,7 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
               </a>
             </React.Fragment>,
           ],
+          buffered,
         }}
       />
     </React.Fragment>,
@@ -291,14 +303,15 @@ export const Player: React.FC<
           'inner-video',
         )}
       >
-        <div
-          className={classNames(
-            styles['control-button'],
-            playing && styles.playing,
-          )}
-          onClick={handlePlayPause}
-        >
-          {playing ? <Pause /> : <Play />}
+        <div className={styles.overlay} onClick={handlePlayPause}>
+          <div
+            className={classNames(
+              styles['control-button'],
+              playing && styles.playing,
+            )}
+          >
+            {playing ? <Pause /> : <Play />}
+          </div>
         </div>
         <video
           {...rest}

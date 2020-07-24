@@ -1,7 +1,7 @@
 /*
  * @Author: Innei
  * @Date: 2020-07-23 14:40:05
- * @LastEditTime: 2020-07-24 11:07:05
+ * @LastEditTime: 2020-07-24 19:28:07
  * @LastEditors: Innei
  * @FilePath: /mx-player/src/components/controls/index.tsx
  * @Coding with Love
@@ -9,7 +9,8 @@
 
 import React, { FC, memo, useEffect, useState } from 'react'
 import { PlayState } from '../..'
-import { Ellipsis, Expand, Mute, Pause, Play, Volume } from '../../icons'
+import { Expand, Mute, Pause, Play, Volume } from '../../icons'
+import { fancyTimeFormat } from '../../utils'
 import styles from './styles.module.css'
 
 interface ProgressProps {
@@ -74,14 +75,15 @@ interface ControlsProps {
   onPlayPause: (state: PlayState) => void
   isMuted: boolean
   progressPercent: number
-  duration: string
-  currentTime: string
+  duration: number
+  currentTime: number
   volume: number
   onVolumeChange: (vol: number) => void
   onMute: (state: boolean) => void
   onProgressDrag: (currentPercent: number) => void
   onRequestFullScreen?: () => void
   actions?: JSX.Element | JSX.Element[]
+  buffered?: number
 }
 export const Controls: FC<ControlsProps> = memo((props) => {
   const {
@@ -96,6 +98,7 @@ export const Controls: FC<ControlsProps> = memo((props) => {
     isPlay,
     onPlayPause,
     onRequestFullScreen,
+    buffered,
     actions,
   } = props
 
@@ -148,13 +151,26 @@ export const Controls: FC<ControlsProps> = memo((props) => {
         </div>
       </div>
       <div className={styles['bottom-progress']}>
-        <span className={styles.time}>{currentTime}</span>
-        <Progress
-          width="100%"
-          onChange={onProgressDrag}
-          percent={progressPercent}
-        />
-        <span className={styles.time}>{duration}</span>
+        <span className={styles.time}>{fancyTimeFormat(currentTime)}</span>
+        <div className={styles['progress-wrap']}>
+          <Progress
+            width="100%"
+            onChange={onProgressDrag}
+            percent={progressPercent}
+          />
+          {buffered && (
+            <div
+              className={styles['seek-progress']}
+              style={
+                {
+                  '--seekable': (100 - buffered).toString().concat('%'),
+                } as any
+              }
+            />
+          )}
+        </div>
+
+        <span className={styles.time}>{fancyTimeFormat(duration)}</span>
       </div>
     </div>
   )

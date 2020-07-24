@@ -4,8 +4,8 @@ import React, { Fragment, useEffect, useRef, useState } from 'react'
 import 'mx-player/dist/index.css'
 const App = () => {
   const ref = useRef<HTMLVideoElement>(null)
-  const [width, setWidth] = useState(480)
-  const [height, setHeight] = useState(270)
+  const localVideo = require('./1080_7.mp4')
+  const online = 'https://tu-1252943311.cos.ap-shanghai.myqcloud.com/1080_7.mp4'
   // useEffect(() => {
   //   console.log(ref, ref.current)
   //   if (!ref.current) {
@@ -20,15 +20,7 @@ const App = () => {
   // }, [ref])
   return (
     <Fragment>
-      <Player
-        src={require('./1080_7.mp4')}
-        ref={ref as any}
-        height={height}
-        width={width}
-        maxHeight={200}
-        maxWidth={200}
-        muted
-      />
+      <Player src={online} ref={ref as any} width={480} height={270} muted />
     </Fragment>
   )
 }

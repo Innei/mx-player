@@ -31,7 +31,7 @@
 }
 .actions {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   background-color: #0000009f;
   border-radius: 6px;
   padding: 4px 8px;
@@ -119,4 +119,15 @@ svg.icon {
   color: #ffffff;
   font-size: 2rem;
   background-color: #0000009f;
+}
+
+.overlay {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: inline-block;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  cursor: pointer;
 }
