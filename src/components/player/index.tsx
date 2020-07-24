@@ -62,13 +62,54 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
       ) {
         handleExit()
       }
+      if (!videoRef.current) {
+        return
+      }
+      const target = videoRef.current
+      const cur = target.currentTime
+      // `->`
+      if (
+        e.code === 'ArrowRight' ||
+        e.key === 'ArrowRight' ||
+        e.which === 39 ||
+        e.keyCode === 39
+      ) {
+        if (cur + 10 > target.duration) {
+          target.currentTime = target.duration
+        } else {
+          target.currentTime = cur + 10
+        }
+      }
+      if (
+        e.code === 'ArrowLeft' ||
+        e.key === 'ArrowLeft' ||
+        e.which === 37 ||
+        e.keyCode === 37
+      ) {
+        if (cur - 10 < 0) {
+          target.currentTime = 0
+        } else {
+          target.currentTime = cur - 10
+        }
+      }
+
+      if (
+        e.key === '(Space character)' ||
+        e.code === 'Space' ||
+        e.keyCode === 32 ||
+        e.which === 32
+      ) {
+        target.paused ? target.play() : target.pause()
+      }
     }
+    document.documentElement.style.overflow = 'hidden'
     document.addEventListener('keydown', handler)
 
     return () => {
       document.removeEventListener('keydown', handler)
+      document.documentElement.style.overflow = ''
     }
-  }, [handleExit, onClose])
+  }, [handleExit])
   const videoRef = React.useRef<HTMLVideoElement>(null)
 
   const [currentTime, setCurrentTime] = React.useState(
