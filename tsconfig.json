@@ -6,6 +6,7 @@
       "dom",
       "esnext"
     ],
+    "target": "es6",
     "moduleResolution": "node",
     "jsx": "react",
     "sourceMap": true,

@@ -5,7 +5,12 @@ import { useCombinedRefs } from '../../hooks/use-combine-ref'
 import { Close, Download, External, Mute, UnMute } from '../../icons'
 import { Pause } from '../../icons/pause'
 import { Play } from '../../icons/play'
-import { calculateDimensions, classNames, fancyTimeFormat } from '../../utils'
+import {
+  calculateDimensions,
+  classNames,
+  fancyTimeFormat,
+  requestFullscreen,
+} from '../../utils'
 import { Controls } from '../controls'
 import styles from './styles.module.css'
 
@@ -159,9 +164,9 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
           progressPercent: currentTime / duration,
           isPlay: !videoRef.current?.paused,
           onPlayPause: handlePlayPause,
-          onRequestFullScreen: videoRef.current?.requestFullscreen.bind(
-            videoRef.current,
-          ),
+          onRequestFullScreen: videoRef.current
+            ? requestFullscreen.bind(videoRef.current, videoRef.current)
+            : undefined,
           actions: [
             <React.Fragment key="download">
               <a download href={src} className={styles.link}>
@@ -307,7 +312,7 @@ export const Player: React.FC<
             if (!vRef.current) {
               return
             }
-            vRef.current.requestFullscreen()
+            requestFullscreen(vRef.current)
           }}
           onTimeUpdate={handleTimeUpdate}
           onLoadedData={(e) => {

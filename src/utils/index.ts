@@ -1,7 +1,7 @@
 /*
  * @Author: Innei
  * @Date: 2020-07-22 22:05:16
- * @LastEditTime: 2020-07-24 13:38:15
+ * @LastEditTime: 2020-07-24 17:30:34
  * @LastEditors: Innei
  * @FilePath: /mx-player/src/utils/index.ts
  * @Coding with Love
@@ -65,4 +65,27 @@ export const calculateDimensions = (
     }
   }
   return dimensions
+}
+declare const document: any
+
+export function requestFullscreen<T extends HTMLElement>(element: T) {
+  const fullscreenEnabled =
+    document.fullscreenEnabled ||
+    document.mozFullScreenEnabled ||
+    document.documentElement.webkitRequestFullScreen
+
+  if (!fullscreenEnabled) {
+    return
+  }
+  if (element.requestFullscreen) {
+    element.requestFullscreen()
+    // @ts-ignore
+  } else if (element.mozRequestFullScreen) {
+    // @ts-ignore
+    element.mozRequestFullScreen()
+    // @ts-ignore
+  } else if (element.webkitRequestFullScreen) {
+    // @ts-ignore
+    element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT)
+  }
 }
