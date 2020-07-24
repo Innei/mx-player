@@ -16,4 +16,7 @@ code {
 #root {
   display: flex;
   margin-top: 50px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }

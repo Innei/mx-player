@@ -1,26 +1,21 @@
-import { Player, Controls } from 'mx-player'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
-
+import { Player } from 'mx-player'
 import 'mx-player/dist/index.css'
+import React, { Fragment, useRef } from 'react'
+
 const App = () => {
   const ref = useRef<HTMLVideoElement>(null)
-  const localVideo = require('./1080_7.mp4')
-  const online = 'https://tu-1252943311.cos.ap-shanghai.myqcloud.com/1080_7.mp4'
-  // useEffect(() => {
-  //   console.log(ref, ref.current)
-  //   if (!ref.current) {
-  //     return
-  //   }
-  //   const height = ref.current.videoHeight
-  //   const width = ref.current.videoWidth
-  //   console.log(height, width)
-
-  //   setHeight(height / 2)
-  //   setWidth(width / 2)
-  // }, [ref])
+  const online =
+    'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4'
   return (
     <Fragment>
-      <Player src={online} ref={ref as any} width={480} height={270} muted />
+      <Player
+        crossOrigin="anonymous"
+        src={online}
+        ref={ref as any}
+        width={480}
+        height={270}
+        muted
+      />
     </Fragment>
   )
 }
