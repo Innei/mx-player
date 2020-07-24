@@ -2,7 +2,7 @@ import throttle from 'lodash/throttle'
 import * as React from 'react'
 import ReactDOM from 'react-dom'
 import { useCombinedRefs } from '../../hooks/use-combine-ref'
-import { External, Mute, UnMute } from '../../icons'
+import { Close, Download, External, Mute, UnMute } from '../../icons'
 import { Pause } from '../../icons/pause'
 import { Play } from '../../icons/play'
 import { classNames, fancyTimeFormat } from '../../utils'
@@ -121,9 +121,24 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
             setDuration(duration)
           }}
         />
+        <div
+          className={classNames(styles.close, styles.flex)}
+          onClick={onClose}
+        >
+          <Close />
+        </div>
       </div>
     )
-  }, [className, handleTimeUpdate, metaData, muted, overlayColor, src, volume])
+  }, [
+    className,
+    handleTimeUpdate,
+    metaData,
+    muted,
+    onClose,
+    overlayColor,
+    src,
+    volume,
+  ])
 
   return ReactDOM.createPortal(
     <React.Fragment>
@@ -142,7 +157,16 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
           progressPercent: currentTime / duration,
           isPlay: !videoRef.current?.paused,
           onPlayPause: handlePlayPause,
-          onRequestFullScreen: videoRef.current?.requestFullscreen,
+          onRequestFullScreen: videoRef.current?.requestFullscreen.bind(
+            videoRef.current,
+          ),
+          actions: [
+            <React.Fragment key="download">
+              <a download href={src} className={styles.link}>
+                <Download />
+              </a>
+            </React.Fragment>,
+          ],
         }}
       />
     </React.Fragment>,

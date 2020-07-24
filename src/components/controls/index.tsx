@@ -1,13 +1,13 @@
 /*
  * @Author: Innei
  * @Date: 2020-07-23 14:40:05
- * @LastEditTime: 2020-07-24 10:32:08
+ * @LastEditTime: 2020-07-24 11:07:05
  * @LastEditors: Innei
  * @FilePath: /mx-player/src/components/controls/index.tsx
  * @Coding with Love
  */
 
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, memo, useEffect, useState } from 'react'
 import { PlayState } from '../..'
 import { Ellipsis, Expand, Mute, Pause, Play, Volume } from '../../icons'
 import styles from './styles.module.css'
@@ -81,8 +81,9 @@ interface ControlsProps {
   onMute: (state: boolean) => void
   onProgressDrag: (currentPercent: number) => void
   onRequestFullScreen?: () => void
+  actions?: JSX.Element | JSX.Element[]
 }
-export const Controls: FC<ControlsProps> = (props) => {
+export const Controls: FC<ControlsProps> = memo((props) => {
   const {
     duration,
     currentTime,
@@ -95,6 +96,7 @@ export const Controls: FC<ControlsProps> = (props) => {
     isPlay,
     onPlayPause,
     onRequestFullScreen,
+    actions,
   } = props
 
   return (
@@ -132,10 +134,17 @@ export const Controls: FC<ControlsProps> = (props) => {
           {isPlay ? <Pause /> : <Play />}
         </div>
         <div className={styles.right}>
-          <div className="expand" onClick={onRequestFullScreen}>
-            <Expand />
-          </div>
-          <Ellipsis />
+          {onRequestFullScreen && (
+            <div
+              className="expand"
+              onClick={() => {
+                onRequestFullScreen()
+              }}
+            >
+              <Expand />
+            </div>
+          )}
+          {actions}
         </div>
       </div>
       <div className={styles['bottom-progress']}>
@@ -149,4 +158,4 @@ export const Controls: FC<ControlsProps> = (props) => {
       </div>
     </div>
   )
-}
+})

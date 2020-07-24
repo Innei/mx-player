@@ -102,3 +102,19 @@ svg.icon {
   height: 1em;
   width: 1em;
 }
+.link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  opacity: 0.8;
+  color: #ffffff;
+  font-size: 2rem;
+  background-color: #0000009f;
+}
