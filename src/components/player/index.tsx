@@ -18,7 +18,7 @@ interface PlayerProps {
   src: string
 }
 
-enum PlayState {
+export enum PlayState {
   Pause,
   Playing,
 }
@@ -79,7 +79,13 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
     videoRef.current.currentTime = currentTime
     setCurrentTime(currentTime)
   }
-  const Player: React.FC = () => {
+  const handlePlayPause = React.useCallback(() => {
+    if (!videoRef.current) {
+      return
+    }
+    videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause()
+  }, [])
+  const Player = React.useMemo(() => {
     return (
       <div
         className={classNames(
@@ -93,7 +99,6 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
           ref={videoRef}
           src={src}
           muted={muted}
-          controls
           style={{ maxWidth: '70vw', maxHeight: '60vh' }}
           onTimeUpdate={handleTimeUpdate}
           onVolumeChange={(e) => {
@@ -118,10 +123,11 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
         />
       </div>
     )
-  }
+  }, [className, handleTimeUpdate, metaData, muted, overlayColor, src, volume])
+
   return ReactDOM.createPortal(
     <React.Fragment>
-      <Player />
+      {Player}
       <Controls
         {...{
           currentTime: fancyTimeFormat(currentTime),
@@ -134,6 +140,9 @@ const ExternalPlayer: React.FC<ExternalPlayerProps> = (props) => {
           onVolumeChange: handleVolumeChange,
           onProgressDrag: handleProgressDrag,
           progressPercent: currentTime / duration,
+          isPlay: !videoRef.current?.paused,
+          onPlayPause: handlePlayPause,
+          onRequestFullScreen: videoRef.current?.requestFullscreen,
         }}
       />
     </React.Fragment>,
