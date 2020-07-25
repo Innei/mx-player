@@ -14,6 +14,7 @@ import {
   setKeyValueStore,
 } from '../../utils'
 import { Controls } from '../controls'
+import { Menu, MenuType } from '../menu'
 import styles from './styles.module.css'
 
 declare type VideoEvent = React.SyntheticEvent<HTMLVideoElement, Event>
@@ -360,6 +361,35 @@ export const Player: React.FC<
     }
   }, [playing])
 
+  const [MenuPosition, setMenuPosition] = React.useState<{
+    x: number
+    y: number
+  }>(null!)
+  const MenuItem = React.useMemo<MenuType[]>(() => {
+    return [
+      {
+        name: '关于作者',
+        onClink: () => {
+          window.open('https://innei.ren/about')
+        },
+      },
+      {
+        name: 'mx-player',
+        onClink: () => {
+          window.open('https://github.com/innei/mx-player')
+        },
+      },
+    ]
+  }, [])
+  React.useEffect(() => {
+    const handler = () => {
+      setMenuPosition(null!)
+    }
+    window.addEventListener('click', handler)
+    return () => {
+      window.removeEventListener('click', handler)
+    }
+  }, [])
   return (
     <div className={classNames(styles['player-wrap'], external && styles.hide)}>
       <div className={classNames(styles.time, styles.flex, styles.actions)}>
@@ -386,6 +416,7 @@ export const Player: React.FC<
           onContextMenu={(e) => {
             e.preventDefault()
             e.stopPropagation()
+            setMenuPosition({ x: e.clientX, y: e.clientY })
           }}
         >
           <div
@@ -423,6 +454,7 @@ export const Player: React.FC<
           <source src={src} />
         </video>
       </div>
+      {MenuPosition && <Menu items={MenuItem} position={MenuPosition} />}
       {external && (
         <ExternalPlayer
           src={src}

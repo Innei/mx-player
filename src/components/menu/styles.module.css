@@ -1,0 +1,32 @@
+.menu-wrap {
+  position: fixed;
+  background-color: var(--mx-player-menu-bg-color);
+  box-shadow: 1px 1px 6px -4px var(--mx-player-menu-text-color);
+
+  border-radius: 3px;
+  color: var(--mx-player-menu-text-color);
+  width: 150px;
+  padding: 6px 0;
+  font-size: 14px;
+  z-index: 102;
+}
+.menu-item {
+  /* padding-top: 12px;
+  padding-left: 14px;
+  padding-right: 14px; */
+  padding: 6px 14px;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+/* .menu-item:last-child {
+  padding-bottom: 12px;
+} */
+.menu-item:hover {
+  background-color: var(--mx-player-menu-text-color);
+  color: var(--mx-player-menu-bg-color);
+}
+:root {
+  --mx-player-menu-bg-color: #fff;
+  --mx-player-menu-text-color: #222;
+}
