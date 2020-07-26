@@ -1,7 +1,7 @@
 /*
  * @Author: Innei
  * @Date: 2020-07-22 22:05:16
- * @LastEditTime: 2020-07-24 17:30:34
+ * @LastEditTime: 2020-07-26 20:11:28
  * @LastEditors: Innei
  * @FilePath: /mx-player/src/utils/index.ts
  * @Coding with Love
@@ -52,19 +52,29 @@ export const calculateDimensions = (
   height: number,
   max: { width: number; height: number },
 ) => {
-  const dimensions = { width, height }
-  if (width > height) {
-    if (width > max.width) {
-      dimensions.width = max.width
-      dimensions.height = (max.width / width) * height
-    }
-  } else {
-    if (height > max.height) {
-      dimensions.height = max.height
-      dimensions.width = (max.height / height) * width
+  const { height: maxHeight, width: maxWidth } = max
+  const wRatio = maxWidth / width
+  const hRatio = maxHeight / height
+  let ratio = 1
+  if (maxWidth === Infinity && maxHeight === Infinity) {
+    ratio = 1
+  } else if (maxWidth === Infinity) {
+    if (hRatio < 1) ratio = hRatio
+  } else if (maxHeight === Infinity) {
+    if (wRatio < 1) ratio = wRatio
+  } else if (wRatio < 1 || hRatio < 1) {
+    ratio = wRatio <= hRatio ? wRatio : hRatio
+  }
+  if (ratio < 1) {
+    return {
+      width: width * ratio,
+      height: height * ratio,
     }
   }
-  return dimensions
+  return {
+    width,
+    height,
+  }
 }
 declare const document: any
 
