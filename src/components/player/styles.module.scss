@@ -1,0 +1,137 @@
+.external-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: #0000009f;
+  z-index: 99;
+}
+.player-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.player-wrap,
+.external-container {
+  .blur-overlay {
+    position: relative;
+  }
+  .blur-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    animation: blur-in 0.25s ease-in;
+  }
+  @keyframes blur-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .actions {
+    position: absolute;
+    z-index: 3;
+    background-color: #0000009f;
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #ffffff;
+    opacity: 0.8;
+    font-size: 1em;
+
+    &.time {
+      left: 12px;
+      top: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .actions svg {
+    height: 1em;
+    width: 1em;
+
+    cursor: pointer;
+  }
+  .actions.right-btn {
+    top: 12px;
+    right: 12px;
+  }
+
+  .control-button {
+    position: absolute;
+    left: 50%;
+
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 50px;
+    width: 50px;
+    background-color: #0000009f;
+    border-radius: 50%;
+    z-index: 2;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &:hover .control-button.playing {
+    visibility: visible;
+    opacity: 1;
+  }
+  .control-button.playing {
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.5s;
+  }
+  svg {
+    fill: #ffffff;
+    opacity: 0.8;
+    cursor: pointer;
+  }
+
+  svg.icon {
+    height: 1em;
+    width: 1em;
+  }
+  .link {
+    color: inherit;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    opacity: 0.8;
+    color: #ffffff;
+    font-size: 2rem;
+    background-color: #0000009f;
+  }
+}
+.overlay {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: inline-block;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hide {
+  opacity: 0;
+  visibility: hidden;
+}

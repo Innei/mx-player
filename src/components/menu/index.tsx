@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
-import styles from './styles.module.css'
+import styles from './styles.module.scss'
 
 export interface MenuType {
   name: string

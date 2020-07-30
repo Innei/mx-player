@@ -15,7 +15,7 @@ import {
 } from '../../utils'
 import { Controls } from '../controls'
 import { Menu, MenuType } from '../menu'
-import styles from './styles.module.css'
+import styles from './styles.module.scss'
 
 declare type VideoEvent = React.SyntheticEvent<HTMLVideoElement, Event>
 interface PlayerProps {

@@ -11,7 +11,7 @@ import React, { FC, memo, useCallback, useEffect, useState } from 'react'
 import { PlayState } from '../..'
 import { Expand, Mute, Pause, Play, Volume } from '../../icons'
 import { classNames, fancyTimeFormat } from '../../utils'
-import styles from './styles.module.css'
+import styles from './styles.module.scss'
 
 interface ProgressProps {
   percent: number
